@@ -214,7 +214,7 @@ function renderLogs() {
             <td><strong>${log.name}</strong></td>
             <td><span class="text-secondary">${log.role}</span></td>
             <td>${actionHtml}</td>
-            <td class="log-time">${dateObj.toLocaleTimeString('en-US', { hour12: false })}</td>
+            <td class="log-time">${dateObj.toLocaleTimeString('en-US', { hour12: true })}</td>
             <td class="log-date">${dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
         `;
         tbody.appendChild(tr);
