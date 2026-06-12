@@ -154,11 +154,39 @@ function renderStaffGrid() {
         
         const isIn = staff.status === 'in';
         
+        // Calculate total work logged today
+        const today = getTodayString();
+        let totalWork = 0;
+        if (trackerLogs[today] && trackerLogs[today][staff.id]) {
+            const staffLogs = trackerLogs[today][staff.id];
+            for (let key in staffLogs) {
+                totalWork += staffLogs[key];
+            }
+        }
+        
+        let workBadgeHtml = '';
+        if (totalWork > 0) {
+            workBadgeHtml = `
+                <div style="margin-top: 12px; display: inline-flex; align-items: center; gap: 6px; background: rgba(79, 70, 229, 0.15); color: #818cf8; padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    ${totalWork} Uploads Today
+                </div>
+            `;
+        } else {
+             workBadgeHtml = `
+                <div style="margin-top: 12px; display: inline-flex; align-items: center; gap: 6px; background: rgba(255, 255, 255, 0.05); color: var(--text-secondary); padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 500;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    No uploads yet
+                </div>
+            `;
+        }
+        
         card.innerHTML = `
             <div class="card-header">
                 <div class="staff-info">
                     <h3>${staff.name}</h3>
                     <p>${staff.role}</p>
+                    ${workBadgeHtml}
                 </div>
                 <div class="status-badge ${staff.status}">${isIn ? 'In Office' : 'Out'}</div>
             </div>
@@ -302,6 +330,7 @@ function updateTrackerCount(id, delta) {
     
     saveState();
     renderTrackerGrid();
+    renderStaffGrid(); // Update the work summary badge on the dashboard
 }
 
 function renderTrackerGrid() {
