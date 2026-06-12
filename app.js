@@ -93,8 +93,20 @@ if (!trackerLogs[getTodayString()]) {
 // --- Clock Widget ---
 function updateClock() {
     const now = new Date();
-    document.getElementById('current-time').textContent = now.toLocaleTimeString('en-US', { hour12: false });
-    document.getElementById('current-date').textContent = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
+    const timeString = now.toLocaleTimeString('en-US', { hour12: true });
+    const dateString = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
+    
+    // Desktop sidebar clock
+    const cTime = document.getElementById('current-time');
+    const cDate = document.getElementById('current-date');
+    if (cTime) cTime.textContent = timeString;
+    if (cDate) cDate.textContent = dateString;
+    
+    // Mobile/Global header clock
+    const tTime = document.getElementById('top-time');
+    const tDate = document.getElementById('top-date');
+    if (tTime) tTime.textContent = timeString;
+    if (tDate) tDate.textContent = dateString;
 }
 setInterval(updateClock, 1000);
 updateClock();
