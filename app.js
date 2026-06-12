@@ -183,7 +183,7 @@ function renderLogs() {
     if (logsList.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="5">
+                <td colspan="6">
                     <div class="empty-state">
                         <p>No activity logs recorded yet.</p>
                     </div>
@@ -196,7 +196,7 @@ function renderLogs() {
     // Sort logs by newest first
     const sortedLogs = [...logsList].sort((a, b) => b.timestamp - a.timestamp);
     
-    sortedLogs.forEach(log => {
+    sortedLogs.forEach((log, index) => {
         const dateObj = new Date(log.timestamp);
         const tr = document.createElement('tr');
         
@@ -210,6 +210,7 @@ function renderLogs() {
         }
             
         tr.innerHTML = `
+            <td><span class="text-secondary" style="font-size: 0.85em; opacity: 0.7;">${index + 1}</span></td>
             <td><strong>${log.name}</strong></td>
             <td><span class="text-secondary">${log.role}</span></td>
             <td>${actionHtml}</td>
