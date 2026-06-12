@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Office Staff Attendance Monitor</title>
+    <meta name="description" content="Professional dashboard to monitor staff arrival and departure times.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo">
+                <div class="logo-icon"></div>
+                <h1>TimeSync</h1>
+            </div>
+            <nav>
+                <button class="nav-btn active" data-target="dashboard">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    Dashboard
+                </button>
+                <button class="nav-btn" data-target="tracker">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                    Work Tracker
+                </button>
+                <button class="nav-btn" data-target="logs">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                    Activity Logs
+                </button>
+            </nav>
+            <div class="time-widget" id="current-time-widget">
+                <span id="current-time">00:00:00</span>
+                <span id="current-date">Jan 1, 2024</span>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Dashboard View -->
+            <section id="dashboard" class="view-section active">
+                <header class="section-header">
+                    <div>
+                        <h2>Staff Dashboard</h2>
+                        <p class="subtitle">Monitor real-time office presence</p>
+                    </div>
+                    <div class="stats-container">
+                        <div class="stat-box">
+                            <span class="stat-label">In Office</span>
+                            <span class="stat-value text-green" id="stat-in">0</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-label">Out</span>
+                            <span class="stat-value text-gray" id="stat-out">0</span>
+                        </div>
+                    </div>
+                </header>
+                
+                <div class="staff-grid" id="staff-grid">
+                    <!-- Staff cards will be injected here via JS -->
+                </div>
+            </section>
+
+            <!-- Work Tracker View -->
+            <section id="tracker" class="view-section hidden">
+                <header class="section-header">
+                    <div>
+                        <h2>Work Tracker</h2>
+                        <p class="subtitle">Daily social media & WhatsApp uploads</p>
+                    </div>
+                    <div class="tracker-controls" style="display: flex; gap: 16px; align-items: center;">
+                        <select id="tracker-staff-select" class="staff-dropdown" style="padding: 8px 16px; border-radius: 8px; background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color); font-family: inherit; font-size: 0.95rem;">
+                            <option value="">Select Staff Member...</option>
+                        </select>
+                        <div class="date-selector" id="tracker-date-display">Today</div>
+                    </div>
+                </header>
+
+                <div class="tracker-grid" id="tracker-grid">
+                    <!-- Tracker cards will be injected here via JS -->
+                </div>
+            </section>
+
+            <!-- Logs View -->
+            <section id="logs" class="view-section hidden">
+                <header class="section-header">
+                    <div>
+                        <h2>Activity Logs</h2>
+                        <p class="subtitle">Historical record of arrivals and departures</p>
+                    </div>
+                    <button class="action-btn secondary" id="clear-logs-btn">Clear Logs</button>
+                </header>
+
+                <div class="logs-container">
+                    <table class="logs-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Role</th>
+                                <th>Action</th>
+                                <th>Time</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logs-body">
+                            <!-- Logs will be injected here via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="toast hidden">
+        <span id="toast-message">Action successful</span>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
