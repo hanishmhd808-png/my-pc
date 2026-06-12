@@ -97,6 +97,28 @@ nav {
     font-family: 'Inter', sans-serif;
 }
 
+.logs-table tbody tr {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: var(--transition);
+    animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.logs-table tbody tr:nth-child(1) { animation-delay: 0.05s; }
+.logs-table tbody tr:nth-child(2) { animation-delay: 0.10s; }
+.logs-table tbody tr:nth-child(3) { animation-delay: 0.15s; }
+.logs-table tbody tr:nth-child(4) { animation-delay: 0.20s; }
+.logs-table tbody tr:nth-child(5) { animation-delay: 0.25s; }
+.logs-table tbody tr:nth-child(6) { animation-delay: 0.30s; }
+.logs-table tbody tr:nth-child(7) { animation-delay: 0.35s; }
+.logs-table tbody tr:nth-child(8) { animation-delay: 0.40s; }
+.logs-table tbody tr:nth-child(9) { animation-delay: 0.45s; }
+.logs-table tbody tr:nth-child(n+10) { animation-delay: 0.50s; }
+
+.logs-table tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.02);
+    transform: translateX(4px);
+}
+
 .nav-btn:hover {
     background-color: rgba(255, 255, 255, 0.05);
     color: var(--text-primary);
@@ -148,8 +170,13 @@ nav {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translateY(20px); filter: blur(8px); }
+    to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+@keyframes slideUpFade {
+    0% { opacity: 0; transform: translateY(30px) scale(0.95); filter: blur(4px); }
+    100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
 }
 
 .section-header {
@@ -217,17 +244,27 @@ nav {
     padding: 24px;
     backdrop-filter: blur(10px);
     transition: var(--transition);
-    display: flex;
     flex-direction: column;
     gap: 20px;
     position: relative;
     overflow: hidden;
+    animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+.staff-card:nth-child(1) { animation-delay: 0.05s; }
+.staff-card:nth-child(2) { animation-delay: 0.1s; }
+.staff-card:nth-child(3) { animation-delay: 0.15s; }
+.staff-card:nth-child(4) { animation-delay: 0.2s; }
+.staff-card:nth-child(5) { animation-delay: 0.25s; }
+.staff-card:nth-child(6) { animation-delay: 0.3s; }
+.staff-card:nth-child(7) { animation-delay: 0.35s; }
+.staff-card:nth-child(8) { animation-delay: 0.4s; }
+.staff-card:nth-child(n+9) { animation-delay: 0.45s; }
+
 .staff-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--card-shadow);
-    border-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-6px) scale(1.01);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), 0 0 20px rgba(79, 70, 229, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
 .staff-card::before {
@@ -299,15 +336,24 @@ nav {
     padding: 10px 16px;
     border: none;
     border-radius: 8px;
-    font-family: inherit;
     font-size: 0.9rem;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
-    transition: var(--transition);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 8px;
+    font-family: inherit;
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+}
+
+.action-btn:active {
+    transform: translateY(1px);
 }
 
 .btn-checkin {
