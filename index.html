@@ -6,6 +6,11 @@
     <title>Office Staff Attendance Monitor</title>
     <meta name="description" content="Professional dashboard to monitor staff arrival and departure times.">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <!-- Add Firebase products that you want to use -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -80,6 +85,11 @@
                 <div class="tracker-grid" id="tracker-grid">
                     <!-- Tracker cards will be injected here via JS -->
                 </div>
+
+                <button id="save-tracker-btn" style="margin-top: 24px; width: 100%; background: var(--accent-primary); color: white; border: none; padding: 16px; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; transition: var(--transition);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                    Save & Submit Work
+                </button>
             </section>
 
             <!-- Logs View -->

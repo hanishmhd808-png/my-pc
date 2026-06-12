@@ -1,3 +1,17 @@
+// --- Firebase Initialization ---
+const firebaseConfig = {
+  apiKey: "AIzaSyAQy_O2J5MUdbWUjvwEqkcpjbn_jGUQudc",
+  authDomain: "report-9ea66.firebaseapp.com",
+  projectId: "report-9ea66",
+  storageBucket: "report-9ea66.firebasestorage.app",
+  messagingSenderId: "107247403212",
+  appId: "1:107247403212:web:eca4e27e7eba3593f10269"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const appStateRef = db.collection('app_state').doc('main');
+
 // --- State Management ---
 const INITIAL_STAFF = [
     { id: '1', name: 'Rizwan', role: 'Camera Man', status: 'out' },
@@ -7,18 +21,54 @@ const INITIAL_STAFF = [
     { id: '5', name: 'Azlam', role: 'Editor', status: 'out' }
 ];
 
-let staffList = JSON.parse(localStorage.getItem('attendance_staff')) || INITIAL_STAFF;
+let staffList = [...INITIAL_STAFF];
+let logsList = [];
+let trackerLogs = {};
 
-// Ensure new staff are added if local storage already exists
-INITIAL_STAFF.forEach(defaultStaff => {
-    if (!staffList.some(s => s.id === defaultStaff.id)) {
-        staffList.push(defaultStaff);
+// Wait for Firebase to load before starting app
+let isAppInitialized = false;
+
+appStateRef.onSnapshot((doc) => {
+    if (doc.exists) {
+        const data = doc.data();
+        if (data.staffList) {
+            staffList = data.staffList;
+            // Ensure any new staff defaults are added
+            INITIAL_STAFF.forEach(defaultStaff => {
+                if (!staffList.some(s => s.id === defaultStaff.id)) {
+                    staffList.push(defaultStaff);
+                }
+            });
+        }
+        if (data.logsList) logsList = data.logsList;
+        if (data.trackerLogs) trackerLogs = data.trackerLogs;
+    } else {
+        // Document doesn't exist yet (first run)
+        saveState();
+    }
+    
+    if (!isAppInitialized) {
+        isAppInitialized = true;
+        init();
+    } else {
+        // Real-time update from another device
+        renderStaffGrid();
+        renderLogs();
+        renderTrackerGrid();
     }
 });
-// Save immediately so changes persist
-localStorage.setItem('attendance_staff', JSON.stringify(staffList));
 
-let logsList = JSON.parse(localStorage.getItem('attendance_logs')) || [];
+function saveState() {
+    appStateRef.set({
+        staffList: staffList,
+        logsList: logsList,
+        trackerLogs: trackerLogs,
+        lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(err => {
+        console.error("Firebase save error:", err);
+        showToast("Error saving to cloud!");
+    });
+}
 
 // Tracker State
 const TRACKER_KEYS = [
@@ -32,20 +82,12 @@ const TRACKER_KEYS = [
     { id: 'wa_ads', name: 'Ads Shared', platform: 'whatsapp', type: 'Shares', icon: '💬' }
 ];
 
-let trackerLogs = JSON.parse(localStorage.getItem('attendance_tracker')) || {};
-
 function getTodayString() {
     return new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD local
 }
 
 if (!trackerLogs[getTodayString()]) {
     trackerLogs[getTodayString()] = {};
-}
-
-function saveState() {
-    localStorage.setItem('attendance_staff', JSON.stringify(staffList));
-    localStorage.setItem('attendance_logs', JSON.stringify(logsList));
-    localStorage.setItem('attendance_tracker', JSON.stringify(trackerLogs));
 }
 
 // --- Clock Widget ---
@@ -195,6 +237,7 @@ function handleAction(staffId, action) {
     
     // Show toast notification
     showToast(`${staff.name} checked ${action} successfully.`);
+    submitActionToGoogleForm(staff.name, action);
 }
 
 document.getElementById('clear-logs-btn').addEventListener('click', () => {
@@ -305,11 +348,156 @@ function init() {
     });
     
     select.addEventListener('change', renderTrackerGrid);
+    
+    const saveTrackerBtn = document.getElementById('save-tracker-btn');
+    if (saveTrackerBtn) {
+        saveTrackerBtn.addEventListener('click', submitTrackerToGoogleForm);
+    }
 
     renderStaffGrid();
     renderLogs();
     renderTrackerGrid();
 }
 
-// Run init when DOM is loaded
-document.addEventListener('DOMContentLoaded', init);
+// --- Google Form Integration ---
+const GOOGLE_FORM_MAPPING = {
+    'Rizwan': 'entry.721255746',
+    'Hanish': 'entry.1920159151',
+    'Sarath': 'entry.533035882',
+    'Jeena': 'entry.222764724',
+    'Azlam': 'entry.1013973910'
+};
+const GOOGLE_FORM_URL = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLSfNBh-L6JnPpmOLr-lZFyQSEguIfcUzY35LI5IeHJbxuy5Bhg/formResponse';
+
+function submitActionToGoogleForm(staffName, action) {
+    let iframe = document.getElementById('hidden_iframe');
+    if (!iframe) {
+        iframe = document.createElement('iframe');
+        iframe.name = 'hidden_iframe';
+        iframe.id = 'hidden_iframe';
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+    }
+    
+    const form = document.createElement('form');
+    form.action = GOOGLE_FORM_URL;
+    form.method = 'POST';
+    form.target = 'hidden_iframe';
+    
+    // Add staff field
+    const fieldName = GOOGLE_FORM_MAPPING[staffName];
+    if (fieldName) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = fieldName;
+        // Exact values to match the Google Form dropdowns
+        input.value = action === 'in' ? 'check in' : 'check out';
+        form.appendChild(input);
+    }
+
+    // Add required Google Form hidden fields
+    const hiddenData = {
+        'fvv': '1',
+        'partialResponse': '[null,null,"-2337219535297129586"]',
+        'pageHistory': '0',
+        'fbzx': '-2337219535297129586'
+    };
+    for (let key in hiddenData) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = hiddenData[key];
+        form.appendChild(input);
+    }
+
+    document.body.appendChild(form);
+    form.submit();
+    
+    // Cleanup form
+    setTimeout(() => { document.body.removeChild(form); }, 1000);
+}
+
+function submitTrackerToGoogleForm() {
+    const select = document.getElementById('tracker-staff-select');
+    const staffId = select.value;
+    const staff = staffList.find(s => s.id === staffId);
+    if (!staff) return;
+
+    const today = getTodayString();
+    
+    let uploadString = 'No uploads recorded yet.';
+    if (trackerLogs[today] && trackerLogs[today][staffId]) {
+        const counts = [];
+        TRACKER_KEYS.forEach(k => {
+            const val = trackerLogs[today][staffId][k.id];
+            if (val > 0) {
+                counts.push(`${val} ${k.name} (${k.platform} ${k.type})`);
+            }
+        });
+        if (counts.length > 0) {
+            uploadString = counts.join(', ');
+        } else {
+            alert('No work recorded for today yet. Please add some uploads first.');
+            return;
+        }
+    } else {
+        alert('No work recorded for today yet. Please add some uploads first.');
+        return;
+    }
+
+    if(!confirm(`Submit this work for ${staff.name} to the Google Form?\n\n${uploadString}`)) return;
+
+    const btn = document.getElementById('save-tracker-btn');
+    const originalHtml = btn.innerHTML;
+    btn.innerHTML = 'Saving...';
+    btn.disabled = true;
+
+    let iframe = document.getElementById('hidden_iframe');
+    if (!iframe) {
+        iframe = document.createElement('iframe');
+        iframe.name = 'hidden_iframe';
+        iframe.id = 'hidden_iframe';
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+    }
+
+    iframe.onload = function() {
+        showToast(`Work for ${staff.name} saved to Google Form!`);
+        btn.innerHTML = originalHtml;
+        btn.disabled = false;
+        iframe.onload = null;
+    };
+
+    const form = document.createElement('form');
+    form.action = GOOGLE_FORM_URL;
+    form.method = 'POST';
+    form.target = 'hidden_iframe';
+    
+    const fieldName = GOOGLE_FORM_MAPPING[staff.name];
+    if (fieldName) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = fieldName;
+        input.value = `Work: ${uploadString}`;
+        form.appendChild(input);
+    }
+
+    const hiddenData = {
+        'fvv': '1',
+        'partialResponse': '[null,null,"-2337219535297129586"]',
+        'pageHistory': '0',
+        'fbzx': '-2337219535297129586'
+    };
+    for (let key in hiddenData) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = hiddenData[key];
+        form.appendChild(input);
+    }
+
+    document.body.appendChild(form);
+    form.submit();
+    
+    setTimeout(() => { document.body.removeChild(form); }, 1000);
+}
